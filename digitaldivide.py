@@ -34,15 +34,32 @@ def donate():
 # below are sample code, not actually used
 @app.route('/postjson', methods = ['POST'])
 def postJsonHandler():
-    print (request.is_json)
-    content = request.get_json()
-    print (content)
     # get the form from http POST request
-    requester_name = request.form['name']
-    phone_number = request.form['mobile']
-    zipcode = request.form['zipcode']
-    print(request.form)
+
+    req_dict = request.form.to_dict()
+    # default
+    req_dict['wifi_enabled'] = True
+    req_dict['ram'] = 8
+    req_dict['storage'] = 512
+
+    requests_file = os.path.join(current_app.static_folder, 'requests.json')
+    with open(requests_file) as f:
+        data = json.load(f)
+
+    # get current req_id
+    req_list = data['requests']
+    i = 0
+    for item in req_list:
+        i += 1
+    i += 1
+    req_dict['req_id'] = i
+    req_list.append(req_dict)
+
+    with open (requests_file, 'w') as file:
+        json.dump(data, file)
+
     return 'JSON posted'
+
 
 @app.route("/getjson", methods=["GET"])
 def starting_url():
